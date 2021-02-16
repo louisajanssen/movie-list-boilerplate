@@ -2,27 +2,43 @@ import React from 'react';
 import MovieList from './MovieList.jsx'
 import Search from './Search.jsx'
 import AddMovies from './AddMovies.jsx'
-
-// var movies = [
-//   {title: 'Mean Girls'},
-//   {title: 'Hackers'},
-//   {title: 'The Grey'},
-//   {title: 'Sunshine'},
-//   {title: 'Ex Machina'},
-// ];
+import axios from 'axios'
 
 class App extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      toWatch: [],
-      watchedMovies: [],
+      allMovies: [],
       searchText: '',
       movieText: '',
-      watched: false
+      isSelectingWatchedMovies: false,
     };
-    this.getMoviesArray = this.getMoviesArray.bind(this)
+
+    this.getMovies = this.getMovies.bind(this)
+    this.getMoviesForMovielist = this.getMoviesForMovielist.bind(this)
+    this.deleteMovie = this.deleteMovie.bind(this)
+    this.clickWatched = this.clickWatched.bind(this)
+    this.clickToWatch = this.clickToWatch.bind(this)
+    this.onAddMovieTitleChanged = this.onAddMovieTitleChanged.bind(this)
+    this.addMovie = this.addMovie.bind(this)
+    this.handleChange = this.handleChange.bind(this)
+    this.handleClick = this.handleClick.bind(this)
+    this.toggleWatchedMovies = this.toggleWatchedMovies.bind(this)
+    
   }
+
+  componentDidMount() {
+    this.getMovies();
+  }
+
+  getMovies() {
+    axios.get('/api/movielist')
+      .then(({ data }) => {
+        this.setState({ 
+          allMovies: data
+        })
+      }
+    )}
 
 
   handleChange(input) {
@@ -32,87 +48,92 @@ class App extends React.Component {
   }
 
   handleClick(event) {
+    if (this.state.searchText === '') {
+      this.getMovies()
+    }
     let searchMovies = [];
-    for (let i = 0; i < this.state.toWatch.length; i++) {
-      let currentMovie = this.state.toWatch[i]
+    for (let i = 0; i < this.state.allMovies.length; i++) {
+      let currentMovie = this.state.allMovies[i]
       if (currentMovie.title.includes(this.state.searchText)) {
         searchMovies.push(currentMovie)
       }
     }
     this.setState({
-      toWatch: searchMovies
+      allMovies: searchMovies
     })
   }
   
-  grabMovie(input) {
+  onAddMovieTitleChanged(input) {
     this.setState({
       movieText: input
     })
   }
 
-  addMovie(event) {
-    let movieObj = {
-      title: this.state.movieText
+  addMovie() {
+    let movie = {
+      title: this.state.movieText,
+      watched: false
     }
-    let movieArray = []
-    for (let i = 0; i < this.state.toWatch.length; i++) {
-      movieArray.push(this.state.toWatch[i])
-    }
-    movieArray.push(movieObj)
-    this.setState({
-      toWatch: movieArray
-    })
+    axios.post('/api/movielist', movie)
+      .then(() => this.getMovies());
   }
 
   clickWatched() {
     this.setState ({
-      watched: true
+      isSelectingWatchedMovies: true
     })
   }
 
   clickToWatch() {
     this.setState ({
-      watched: false
+      isSelectingWatchedMovies: false
     })
   }
 
-  getMoviesArray() {
-    if (this.state.watched) {
-      return this.state.watchedMovies;
+  getMoviesForMovielist() {
+    let movies = [];
+    if (this.state.isSelectingWatchedMovies === false) {
+      for (let i = 0; i < this.state.allMovies.length; i++) {
+        if (this.state.allMovies[i].watched === 0) {
+          movies.push(this.state.allMovies[i])
+        }
+      }
     } else {
-      return this.state.toWatch;
-    }
-  }
-
-  toggleWatchedMovies(title) {
-    let newToWatch = []
-    let newWatchedMovies = []
-    for (let i = 0; i < this.state.toWatch.length; i++) {
-      if (this.state.toWatch[i].title === title) {
-        newWatchedMovies.push(this.state.toWatch[i])
-      } else {
-        newToWatch.push(this.state.toWatch[i])
+      for (let j = 0; j < this.state.allMovies.length; j++) {
+        if (this.state.allMovies[j].watched === 1) {
+          movies.push(this.state.allMovies[j])
+        }
       }
     }
-    for (let i = 0; i < this.state.watchedMovies.length; i++) {
-      newWatchedMovies.push(this.state.watchedMovies[i])
-    }
-    this.setState ({
-      toWatch: newToWatch,
-      watchedMovies: newWatchedMovies
-    })
+    return movies;
   }
+
+
+  toggleWatchedMovies(movie) {
+    if (movie.watched === 0) {
+      movie.watched = 1;
+    }
+
+    axios.put('/api/movielist', movie)
+      .then(() => this.getMovies());
+  }
+
+  deleteMovie(movie) {
+    axios.delete('/api/movielist', {data: movie})
+      .then(() => this.getMovies());
+  }
+
 
 
   render() {
     return (
   <div>
     <h3>Movie List</h3>
-    <AddMovies movies={this.state.toWatch} grabMovie={this.grabMovie.bind(this)} addMovie={this.addMovie.bind(this)}/>
-    <Search handleChange={this.handleChange.bind(this)} handleClick={this.handleClick.bind(this)}/>
-    <button onClick={this.clickWatched.bind(this)}>Watched</button>
-    <button onClick={this.clickToWatch.bind(this)}>To Watch</button>
-    <MovieList movies={this.getMoviesArray()} watched={this.state.watched} toggleWatchedMovies={this.toggleWatchedMovies.bind(this)}/>
+    <AddMovies onAddMovieTitleChanged={this.onAddMovieTitleChanged} addMovie={this.addMovie}/>
+    <Search handleChange={this.handleChange} handleClick={this.handleClick}/>
+    <button onClick={this.clickWatched}>Watched</button>
+    <button onClick={this.clickToWatch}>To Watch</button>
+    <MovieList deleteMovie={this.deleteMovie} allMovies={this.getMoviesForMovielist()} toggleWatchedMovies={this.toggleWatchedMovies}/>
   </div>
   );
   }

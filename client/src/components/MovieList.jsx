@@ -4,7 +4,7 @@ import Movie from './Movie.jsx'
 
 const MovieList = (props) => (
   <div>
-    {props.movies.map((movie, index) => <Movie movie={movie} key={index} watched = {props.watched} toggleWatchedMovies={props.toggleWatchedMovies}/>)}
+    {props.allMovies.map((movie, index) => <Movie movie={movie} key={index} watched = {props.watched} toggleWatchedMovies={props.toggleWatchedMovies} deleteMovie={props.deleteMovie} />)}
   </div>
   
 );
