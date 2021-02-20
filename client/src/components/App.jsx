@@ -12,6 +12,7 @@ class App extends React.Component {
       searchText: '',
       movieText: '',
       isSelectingWatchedMovies: false,
+      personalRating: 0
     };
 
     this.getMovies = this.getMovies.bind(this)
@@ -24,6 +25,8 @@ class App extends React.Component {
     this.handleChange = this.handleChange.bind(this)
     this.handleClick = this.handleClick.bind(this)
     this.toggleWatchedMovies = this.toggleWatchedMovies.bind(this)
+    this.onPersonalRatingAdded = this.onPersonalRatingAdded.bind(this)
+    this.onPersonalRatingClick = this.onPersonalRatingClick.bind(this)
     
   }
 
@@ -123,6 +126,16 @@ class App extends React.Component {
       .then(() => this.getMovies());
   }
 
+  onPersonalRatingAdded(input) {
+    this.setState({
+      personalRating: input
+    })
+  }
+
+  onPersonalRatingClick() {
+    axios.put('/api/personalRating', this.state.personalRating)
+      .then(() => this.getMovies)
+  }
 
 
   render() {
@@ -133,7 +146,7 @@ class App extends React.Component {
     <Search handleChange={this.handleChange} handleClick={this.handleClick}/>
     <button onClick={this.clickWatched}>Watched</button>
     <button onClick={this.clickToWatch}>To Watch</button>
-    <MovieList deleteMovie={this.deleteMovie} allMovies={this.getMoviesForMovielist()} toggleWatchedMovies={this.toggleWatchedMovies}/>
+    <MovieList personalRating={this.state.personalRating} onPersonalRatingAdded={this.onPersonalRatingAdded} onPersonalRatingClick={this.onPersonalRatingClick} deleteMovie={this.deleteMovie} allMovies={this.getMoviesForMovielist()} toggleWatchedMovies={this.toggleWatchedMovies}/>
   </div>
   );
   }

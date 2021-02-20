@@ -1,16 +1,19 @@
 import React from 'react';
-
+import config from '../../../config.js'
+import axios from 'axios'
 
 class Movie extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            isExpanded: false
+            isExpanded: false,
+            popularity: 0,
+            release_date: ''
         }
         this.renderMatched = this.renderMatched.bind(this)
         this.movieTitleClick = this.movieTitleClick.bind(this)
         this.movieInfo = this.movieInfo.bind(this)
-        this.onPersonalRatingClick = this.onPersonalRatingClick.bind(this)
+
     }
     renderMatched(watched) {
         if (watched) {
@@ -31,18 +34,26 @@ class Movie extends React.Component {
                 isExpanded: false
             })
         }
-    }
+        const searchTerm = encodeURIComponent(this.props.movie.title)
+        const url = `https://api.themoviedb.org/3/search/movie/?api_key=${config.TOKEN}&query=${searchTerm}`
+        
+        axios.get(url)
+            .then(({ data }) => {
+                this.setState({
+                    popularity: data.results[0].popularity,
+                    release_date: data.results[0].release_date
+                })
+            })
+        
 
-    onPersonalRatingClick() {
-        console.log('clicked!')
     }
 
     movieInfo() {
         if (this.state.isExpanded === true) {
             return (
                 <div>
-                    <span>Year: 1996, Rating: 7</span>
-                    <input></input><button onClick = {(event) => this.onPersonalRatingClick()}>Add Personal Rating</button>
+                    <span>Release Date: {this.state.release_date}, Popularity: {this.state.popularity}, Personal Rating: {this.props.personalRating}</span>
+                    <input onChange={(event) => this.props.onPersonalRatingAdded(event.target.value)}></input><button onClick={(event) => this.props.onPersonalRatingClick(event)}>Add Personal Rating</button>
                 </div>
             )
         }

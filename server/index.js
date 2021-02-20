@@ -57,6 +57,20 @@ app.put('/api/movielist', (req, res) => {
   })
 })
 
+app.put('/api/personalRating', (req, res) => {
+  let { personalRating } = req.body;
+  let sql = "UPDATE movielist SET personalRating = ? WHERE id = ?";
+
+  db.query(sql, [personalRating], function(err, data) {
+    if(err) {
+      console.log(err)
+      res.send(500);
+    } else {
+      res.send(200);
+    }
+  })
+})
+
 app.delete('/api/movielist', (req, res) => {
   let { id } = req.body;
   let sql = "DELETE FROM movielist WHERE id = ?"
