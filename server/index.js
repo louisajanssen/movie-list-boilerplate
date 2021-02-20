@@ -58,10 +58,10 @@ app.put('/api/movielist', (req, res) => {
 })
 
 app.put('/api/personalRating', (req, res) => {
-  let { personalRating } = req.body;
+  let { personalRating, id } = req.body;
   let sql = "UPDATE movielist SET personalRating = ? WHERE id = ?";
 
-  db.query(sql, [personalRating], function(err, data) {
+  db.query(sql, [personalRating, id], function(err, data) {
     if(err) {
       console.log(err)
       res.send(500);

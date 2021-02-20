@@ -11,8 +11,7 @@ class App extends React.Component {
       allMovies: [],
       searchText: '',
       movieText: '',
-      isSelectingWatchedMovies: false,
-      personalRating: 0
+      isSelectingWatchedMovies: false
     };
 
     this.getMovies = this.getMovies.bind(this)
@@ -25,11 +24,9 @@ class App extends React.Component {
     this.handleChange = this.handleChange.bind(this)
     this.handleClick = this.handleClick.bind(this)
     this.toggleWatchedMovies = this.toggleWatchedMovies.bind(this)
-    this.onPersonalRatingAdded = this.onPersonalRatingAdded.bind(this)
     this.onPersonalRatingClick = this.onPersonalRatingClick.bind(this)
     
   }
-
   componentDidMount() {
     this.getMovies();
   }
@@ -42,7 +39,6 @@ class App extends React.Component {
         })
       }
     )}
-
 
   handleChange(input) {
     this.setState ({
@@ -111,7 +107,6 @@ class App extends React.Component {
     return movies;
   }
 
-
   toggleWatchedMovies(movie) {
     if (movie.watched === 0) {
       movie.watched = 1;
@@ -126,17 +121,16 @@ class App extends React.Component {
       .then(() => this.getMovies());
   }
 
-  onPersonalRatingAdded(input) {
-    this.setState({
+  onPersonalRatingClick(input, id) {
+    // console.log('hello from click ',input)
+    // console.log('hello from id', id)
+    let movie = {
+      id: id,
       personalRating: input
-    })
+    }
+    axios.put('/api/personalRating', movie)
+      .then(() => this.getMovies())
   }
-
-  onPersonalRatingClick() {
-    axios.put('/api/personalRating', this.state.personalRating)
-      .then(() => this.getMovies)
-  }
-
 
   render() {
     return (
@@ -146,7 +140,7 @@ class App extends React.Component {
     <Search handleChange={this.handleChange} handleClick={this.handleClick}/>
     <button onClick={this.clickWatched}>Watched</button>
     <button onClick={this.clickToWatch}>To Watch</button>
-    <MovieList personalRating={this.state.personalRating} onPersonalRatingAdded={this.onPersonalRatingAdded} onPersonalRatingClick={this.onPersonalRatingClick} deleteMovie={this.deleteMovie} allMovies={this.getMoviesForMovielist()} toggleWatchedMovies={this.toggleWatchedMovies}/>
+    <MovieList onPersonalRatingClick={this.onPersonalRatingClick} deleteMovie={this.deleteMovie} allMovies={this.getMoviesForMovielist()} toggleWatchedMovies={this.toggleWatchedMovies}/>
   </div>
   );
   }

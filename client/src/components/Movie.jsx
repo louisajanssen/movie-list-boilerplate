@@ -8,11 +8,13 @@ class Movie extends React.Component {
         this.state = {
             isExpanded: false,
             popularity: 0,
-            release_date: ''
+            release_date: '',
+            personalRating: 0
         }
         this.renderMatched = this.renderMatched.bind(this)
         this.movieTitleClick = this.movieTitleClick.bind(this)
         this.movieInfo = this.movieInfo.bind(this)
+        this.onPersonalRatingAdded = this.onPersonalRatingAdded.bind(this)
 
     }
     renderMatched(watched) {
@@ -44,20 +46,24 @@ class Movie extends React.Component {
                     release_date: data.results[0].release_date
                 })
             })
-        
-
     }
 
     movieInfo() {
         if (this.state.isExpanded === true) {
             return (
                 <div>
-                    <span>Release Date: {this.state.release_date}, Popularity: {this.state.popularity}, Personal Rating: {this.props.personalRating}</span>
-                    <input onChange={(event) => this.props.onPersonalRatingAdded(event.target.value)}></input><button onClick={(event) => this.props.onPersonalRatingClick(event)}>Add Personal Rating</button>
+                    <span>Release Date: {this.state.release_date}, Popularity: {this.state.popularity}, Personal Rating: {this.props.movie.personalRating}</span>
+                    <input onChange={(event) => this.onPersonalRatingAdded(event.target.value)}></input><button onClick={(event) => this.props.onPersonalRatingClick(this.state.personalRating, this.props.movie.id)}>Add Personal Rating</button>
                 </div>
             )
         }
     }
+
+    onPersonalRatingAdded(input) {
+        this.setState({
+          personalRating: input
+        })
+      }
 
     render() {
         return (
