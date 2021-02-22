@@ -53,15 +53,15 @@ class Movie extends React.Component {
             return (
                 <div>
                     <span>Release Date: {this.state.release_date}, Popularity: {this.state.popularity}, Personal Rating: {this.props.movie.personalRating}</span>
-                    <input onChange={(event) => this.onPersonalRatingAdded(event.target.value)}></input><button onClick={(event) => this.props.onPersonalRatingClick(this.state.personalRating, this.props.movie.id)}>Add Personal Rating</button>
+                    <input value={this.state.personalRating} onChange={this.onPersonalRatingAdded}></input><button onClick={(event) => this.props.onPersonalRatingClick(this.state.personalRating, this.props.movie.id)}>Add Personal Rating</button>
                 </div>
             )
         }
     }
 
-    onPersonalRatingAdded(input) {
+    onPersonalRatingAdded(event) {
         this.setState({
-          personalRating: input
+          personalRating: event.target.value
         })
       }
 
